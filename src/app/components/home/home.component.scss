@@ -1,0 +1,114 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: #0b1220;
+  color: #e2e8f0;
+}
+
+.sidebar {
+  width: 220px;
+  background: #0f172a;
+  border-right: 1px solid #1f2937;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.brand h2 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.nav {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav a {
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.nav a.active {
+  background: #0ea5e9;
+  color: #0b1220;
+  font-weight: 700;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.logout {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #f87171;
+  border: 1px solid #f87171;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.content {
+  flex: 1;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.user small {
+  color: #94a3b8;
+}
+
+.page h3 {
+  margin: 0 0 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #1f2937;
+  color: #e2e8f0;
+}
+
+th {
+  background: #0f172a;
+  color: #94a3b8;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.status, .error {
+  color: #94a3b8;
+}
+
+.error {
+  color: #f87171;
+}

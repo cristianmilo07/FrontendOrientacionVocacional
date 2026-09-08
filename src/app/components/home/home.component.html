@@ -1,0 +1,52 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>Prueba Estudiantes</h2>
+    </div>
+    <nav class="nav">
+      <a routerLink="/home" routerLinkActive="active">Estudiantes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div class="user">
+        <span>{{ user?.name }}</span>
+        <small>{{ user?.role }}</small>
+      </div>
+    </header>
+
+    <section class="page">
+      <h3>Estudiantes</h3>
+
+      <div class="table-wrap" *ngIf="!loading && !error">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Grado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of students">
+              <td>{{ s.id }}</td>
+              <td>{{ s.name }}</td>
+              <td>{{ s.email }}</td>
+              <td>{{ s.grade }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="status" *ngIf="loading">Cargando...</p>
+      <p class="error" *ngIf="error">{{ error }}</p>
+    </section>
+
+    <router-outlet />
+  </main>
+</div>
