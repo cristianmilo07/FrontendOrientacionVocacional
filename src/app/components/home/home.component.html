@@ -1,52 +1,132 @@
 <div class="layout">
   <aside class="sidebar">
     <div class="brand">
-      <h2>Prueba Estudiantes</h2>
+      <img class="brand-logo" src="https://cdn.oreateai.com/aiimage/upload/c45bd4192455ca2d999939ba/d07d7bbf9d924f8d060264603175085f.png" alt="Colegio Arenys de Mar" />
+      <h2>Colegio Arenys de Mar</h2>
     </div>
+
+    <div class="user-card">
+      <div class="user-info">
+        <span class="greeting">Hola, {{ user?.name }}</span>
+        <span class="emoji">👋</span>
+      </div>
+      <p class="subtext">¡Listo para aprender hoy?</p>
+      <small class="level">Nivel 10°</small>
+      <div class="user-avatar">
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ user?.name }}" alt="Avatar" />
+      </div>
+    </div>
+
     <nav class="nav">
-      <a routerLink="/home" routerLinkActive="active">Estudiantes</a>
+      <a routerLink="/home" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">⊞</span>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/profile" class="nav-item">
+        <span class="nav-icon">👤</span>
+        <span>Perfil</span>
+      </a>
+      <a routerLink="/settings" class="nav-item">
+        <span class="nav-icon">⚙️</span>
+        <span>Encuentas</span>
+      </a>
     </nav>
+
     <div class="sidebar-footer">
-      <button class="logout" (click)="logout()">Cerrar sesión</button>
+
+      <button class="logout" (click)="logout()">
+        <span class="nav-icon">→</span>
+        <span>Cerrar Sesión</span>
+      </button>
     </div>
   </aside>
 
   <main class="content">
     <header class="topbar">
-      <div class="user">
-        <span>{{ user?.name }}</span>
-        <small>{{ user?.role }}</small>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search" />
+      </div>
+      <div class="topbar-actions">
+        <div class="notification-btn">
+          <span class="bell-icon">🔔</span>
+          <span class="badge">2</span>
+        </div>
+        <div class="user-menu">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ user?.name }}" alt="Avatar" class="user-menu-avatar" />
+          <span class="user-menu-name">{{ user?.name }}</span>
+          <span class="dropdown-arrow">▾</span>
+        </div>
       </div>
     </header>
 
     <section class="page">
-      <h3>Estudiantes</h3>
+      <div class="dashboard-layout">
+        <div class="main-area">
+          <h1 class="page-title">PRUEBA DE ORIENTACIÓN VOCACIONAL</h1>
 
-      <div class="table-wrap" *ngIf="!loading && !error">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Grado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let s of students">
-              <td>{{ s.id }}</td>
-              <td>{{ s.name }}</td>
-              <td>{{ s.email }}</td>
-              <td>{{ s.grade }}</td>
-            </tr>
-          </tbody>
-        </table>
+          <div class="quiz-card">
+            <h2 class="quiz-title">Quiz Semanal: Historia Universal - Siglo XX</h2>
+
+            <div class="quiz-progress">
+              <div class="progress-header">
+                <span class="progress-label">Pregunta 3 de 15</span>
+                <span class="progress-percent">70%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 70%"></div>
+              </div>
+              <div class="progress-text">Progreso: 3 / 15 (20%)</div>
+            </div>
+
+            <div class="question-box">
+              <p class="question-text">¿Quién fue el líder de la Unión Soviética durante la Segunda Guerra Mundial y el inicio de la Guerra Fría?</p>
+            </div>
+
+            <div class="options-grid">
+              <div class="option-card" [class.selected]="selectedOption() === 'A'">
+                <span class="option-letter">A</span>
+                <span class="option-text">Franklin D. Roosevelt</span>
+              </div>
+              <div class="option-card" [class.selected]="selectedOption() === 'B'">
+                <span class="option-letter">B</span>
+                <span class="option-text">Winston Churchill</span>
+              </div>
+              <div class="option-card selected" [class.selected]="selectedOption() === 'C'">
+                <span class="option-letter">C</span>
+                <span class="option-text">Joseph Stalin</span>
+                <span class="check-icon">✓</span>
+              </div>
+              <div class="option-card" [class.selected]="selectedOption() === 'D'">
+                <span class="option-letter">D</span>
+                <span class="option-text">Mao Zedong</span>
+              </div>
+            </div>
+
+            <div class="quiz-actions">
+              <button class="btn-secondary">Anterior</button>
+              <button class="btn-primary">Siguiente Pregunta ></button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="right-sidebar">
+          <div class="perf-card">
+            <h3 class="perf-title">Rendimiento</h3>
+            <div class="perf-average">
+              <span class="perf-label">Average</span>
+              <span class="perf-value">88%</span>
+            </div>
+            <div class="perf-score">
+              <span class="score-label">Current Score</span>
+              <span class="score-value">120/150 XP</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 80%"></div>
+            </div>
+          </div>
+        </aside>
       </div>
-
-      <p class="status" *ngIf="loading">Cargando...</p>
-      <p class="error" *ngIf="error">{{ error }}</p>
     </section>
-
-    <router-outlet />
   </main>
 </div>
