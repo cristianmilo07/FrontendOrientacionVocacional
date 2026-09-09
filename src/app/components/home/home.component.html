@@ -68,66 +68,35 @@
           <h1 class="page-title">PRUEBA DE ORIENTACIÓN VOCACIONAL</h1>
 
           <div class="quiz-card">
-            <h2 class="quiz-title">Quiz Semanal: Historia Universal - Siglo XX</h2>
-
-            <div class="quiz-progress">
-              <div class="progress-header">
-                <span class="progress-label">Pregunta 3 de 15</span>
-                <span class="progress-percent">70%</span>
+            <div class="quiz-header">
+              <h2 class="quiz-title">Cuestionario</h2>
+              <div class="quiz-progress">
+                <div class="progress-header">
+                  <span class="progress-label">Pregunta {{ progress.current }} de {{ progress.total }}</span>
+                  <span class="progress-percent">{{ progress.percent }}%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="progress.percent"></div>
+                </div>
               </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 70%"></div>
-              </div>
-              <div class="progress-text">Progreso: 3 / 15 (20%)</div>
             </div>
 
             <div class="question-box">
-              <p class="question-text">¿Quién fue el líder de la Unión Soviética durante la Segunda Guerra Mundial y el inicio de la Guerra Fría?</p>
+              <p class="question-text">{{ currentQuestion }}</p>
             </div>
 
             <div class="options-grid">
-              <div class="option-card" [class.selected]="selectedOption() === 'A'">
-                <span class="option-letter">A</span>
-                <span class="option-text">Franklin D. Roosevelt</span>
-              </div>
-              <div class="option-card" [class.selected]="selectedOption() === 'B'">
-                <span class="option-letter">B</span>
-                <span class="option-text">Winston Churchill</span>
-              </div>
-              <div class="option-card selected" [class.selected]="selectedOption() === 'C'">
-                <span class="option-letter">C</span>
-                <span class="option-text">Joseph Stalin</span>
-                <span class="check-icon">✓</span>
-              </div>
-              <div class="option-card" [class.selected]="selectedOption() === 'D'">
-                <span class="option-letter">D</span>
-                <span class="option-text">Mao Zedong</span>
-              </div>
+              <button class="option-btn" [class.selected]="answers()[currentIndex()] === '2'" (click)="selectAnswer('2')">Me gusta mucho</button>
+              <button class="option-btn" [class.selected]="answers()[currentIndex()] === '1'" (click)="selectAnswer('1')">Me gusta</button>
+              <button class="option-btn" [class.selected]="answers()[currentIndex()] === '0'" (click)="selectAnswer('0')">No me gusta</button>
             </div>
 
             <div class="quiz-actions">
-              <button class="btn-secondary">Anterior</button>
-              <button class="btn-primary">Siguiente Pregunta ></button>
+              <button class="btn-secondary" (click)="previous()" [disabled]="currentIndex() === 0">Anterior</button>
+              <button class="btn-primary" (click)="next()" [disabled]="currentIndex() === questions.length - 1">Siguiente Pregunta ></button>
             </div>
           </div>
         </div>
-
-        <aside class="right-sidebar">
-          <div class="perf-card">
-            <h3 class="perf-title">Rendimiento</h3>
-            <div class="perf-average">
-              <span class="perf-label">Average</span>
-              <span class="perf-value">88%</span>
-            </div>
-            <div class="perf-score">
-              <span class="score-label">Current Score</span>
-              <span class="score-value">120/150 XP</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: 80%"></div>
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
   </main>
