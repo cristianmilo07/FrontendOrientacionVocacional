@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, map, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 export interface AuthUser {
   username: string;
@@ -28,7 +28,24 @@ export class AuthService {
   }
 
   login(username: string, password: string) {
-    return this.http.post<{ token: string; user: AuthUser }>(`${this.apiUrl}/login`, { username, password }).pipe(
+    return this.http.post<{ token: string; user: AuthUser } | { message: string; activeSession: boolean; user: { username: string; name: string; lastLogin: string } }>(`${this.apiUrl}/login`, { username, password }).pipe(
+      tap((response: any) => {
+        if (response.token) {
+          this.token.set(response.token);
+          this.user.set(response.user);
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
+        }
+      }),
+      map((response: any) => response.user || null),
+      catchError((err) => {
+        return throwError(() => err);
+      })
+    );
+  }
+
+  forceLogin(username: string) {
+    return this.http.post<{ token: string; user: AuthUser }>(`${this.apiUrl}/force-login`, { username }).pipe(
       tap((response) => {
         this.token.set(response.token);
         this.user.set(response.user);
@@ -36,11 +53,17 @@ export class AuthService {
         localStorage.setItem('user', JSON.stringify(response.user));
       }),
       map((response) => response.user),
-      catchError(() => of(null))
+      catchError((err) => {
+        return throwError(() => err);
+      })
     );
   }
 
   logout() {
+    const token = this.token();
+    if (token) {
+      this.http.post(`${this.apiUrl}/logout`, {}).subscribe();
+    }
     this.token.set(null);
     this.user.set(null);
     localStorage.removeItem('token');

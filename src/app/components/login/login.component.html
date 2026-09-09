@@ -25,3 +25,21 @@
     </form>
   </div>
 </div>
+
+<div class="modal-overlay" *ngIf="activeSession">
+  <div class="modal-card">
+    <h2 class="modal-title">Sesión activa detectada</h2>
+    <p class="modal-message">
+      La cuenta <strong>{{ activeSession.name }}</strong> ya tiene una sesión iniciada desde otro navegador o dispositivo.
+    </p>
+    <p class="modal-message">
+      ¿Quieres cerrar esa sesión y permanecer aquí?
+    </p>
+    <div class="modal-buttons">
+      <button class="btn-primary" type="button" (click)="forceLogin()" [disabled]="loading">
+        {{ loading ? 'Cerrando sesión anterior...' : 'Sí, permanecer aquí' }}
+      </button>
+      <button class="btn-outline" type="button" (click)="closeModal()" [disabled]="loading">Cancelar</button>
+    </div>
+  </div>
+</div>

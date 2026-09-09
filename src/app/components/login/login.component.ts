@@ -15,6 +15,7 @@ export class LoginComponent {
   form: FormGroup;
   loading = false;
   error = '';
+  activeSession: { username: string; name: string; lastLogin: string } | null = null;
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.form = this.fb.group({
@@ -31,23 +32,57 @@ export class LoginComponent {
 
     this.loading = true;
     this.error = '';
+    this.activeSession = null;
 
     const { username, password } = this.form.value;
     this.authService.login(username, password).pipe()
       .subscribe({
         next: (user) => {
+          this.loading = false;
           if (user) {
             this.router.navigate(['/home']);
           } else {
             this.error = 'Usuario o contraseña incorrectos';
           }
         },
-        error: () => {
-          this.error = 'Error de conexión';
+        error: (err: any) => {
+          this.loading = false;
+          if (err?.status === 409 && err?.error?.activeSession) {
+            this.activeSession = err.error.user;
+          } else {
+            this.error = 'Error de conexión';
+          }
         },
         complete: () => {
           this.loading = false;
         }
       });
+  }
+
+  forceLogin() {
+    if (!this.activeSession) return;
+    this.loading = true;
+    this.error = '';
+
+    this.authService.forceLogin(this.activeSession.username).pipe()
+      .subscribe({
+        next: (user) => {
+          this.loading = false;
+          this.activeSession = null;
+          if (user) {
+            this.router.navigate(['/home']);
+          } else {
+            this.error = 'No se pudo iniciar sesión';
+          }
+        },
+        error: () => {
+          this.loading = false;
+          this.error = 'No se pudo iniciar sesión';
+        }
+      });
+  }
+
+  closeModal() {
+    this.activeSession = null;
   }
 }
