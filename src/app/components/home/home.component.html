@@ -95,26 +95,135 @@
               <button class="btn-secondary" (click)="previous()" [disabled]="currentIndex() === 0">Anterior</button>
               <button class="btn-primary" (click)="next()" [disabled]="currentIndex() === questions.length - 1 || !isAnswered()">Siguiente Pregunta ></button>
             </div>
+
+            @if (currentIndex() === questions.length - 1 && isAnswered()) {
+              <button class="btn-submit" (click)="submitSurvey()" [disabled]="submitting()">
+                {{ submitting() ? 'Guardando...' : 'Enviar Respuestas' }}
+              </button>
+            }
+
+            @if (submittedMessage()) {
+              <p class="form-message" [class.success]="submitted()" [class.error]="!submitted()">{{ submittedMessage() }}</p>
+            }
+
+            @if (submitted()) {
+              <button class="btn-secondary" (click)="retakeSurvey()">Volver a realizar encuesta</button>
+            }
           </div>
+
+          <button class="btn-view-responses" (click)="loadResponses()">Ver respuestas guardadas</button>
         </div>
       </div>
     </section>
   </main>
 </div>
 
-@if (showInstructions()) {
-  <div class="instruction-modal">
-    <div class="instruction-card">
-      <h2 class="instruction-title">Instrucciones</h2>
-      <p class="instruction-text">
-        Lee cada actividad y escribe:
-      </p>
-      <ul class="instruction-list">
-        <li><strong>2</strong> = Me gusta mucho</li>
-        <li><strong>1</strong> = Me gusta</li>
-        <li><strong>0</strong> = No me gusta</li>
-      </ul>
-      <button class="instruction-close" (click)="closeInstructions()">Entendido</button>
+@if (showResponses()) {
+  <div class="modal-overlay" (click)="closeResponses()">
+    <div class="modal-card large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Respuestas guardadas</h2>
+        <button class="modal-close" (click)="closeResponses()">✕</button>
+      </div>
+
+      @if (responsesLoading()) {
+        <p class="status">Cargando...</p>
+      } @else if (responses().length === 0) {
+        <p class="empty-state">No hay respuestas guardadas</p>
+      } @else {
+        <div class="responses-list">
+          @for (response of responses(); track responseId(response)) {
+            <div class="response-item">
+              <div class="response-info">
+                <span class="response-user">{{ response.username }}</span>
+                <span class="response-meta">{{ response.answersCount }} respuestas · {{ response.submittedAt | date:'short' }}</span>
+              </div>
+              <div class="response-actions">
+                <button class="btn-small" (click)="viewDetail(response)">Ver detalle</button>
+                <button class="btn-small danger" (click)="deleteResponse(responseId(response))" [disabled]="deletingId() === responseId(response)">
+                  {{ deletingId() === responseId(response) ? 'Eliminando...' : 'Eliminar' }}
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (selectedResponse()) {
+  <div class="modal-overlay" (click)="closeDetail()">
+    <div class="modal-card large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Detalle de respuesta - {{ selectedResponse()?.username }}</h2>
+        <button class="modal-close" (click)="closeDetail()">✕</button>
+      </div>
+      <div class="detail-list">
+        @for (answer of selectedResponse()?.answers; track answer.questionIndex) {
+          <div class="detail-item" [class.positive]="answer.value === '2'" [class.neutral]="answer.value === '1'" [class.negative]="answer.value === '0'">
+            <span class="detail-number">{{ answer.questionIndex + 1 }}.</span>
+            <span class="detail-text">{{ answer.question }}</span>
+            <span class="detail-value">{{ answer.value === '2' ? 'Me gusta mucho' : answer.value === '1' ? 'Me gusta' : 'No me gusta' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (showReflection()) {
+  <div class="modal-overlay" (click)="closeReflection()">
+    <div class="reflection-card" (click)="$event.stopPropagation()">
+      <div class="reflection-progress">
+        @for (q of reflectionQuestions; track q.key; let i = $index) {
+          <div class="reflection-dot" [class.done]="i < reflectionStep()" [class.active]="i === reflectionStep()"></div>
+        }
+      </div>
+
+      @if (!reflectionSubmitted()) {
+        <div class="reflection-body">
+          <p class="reflection-eyebrow">Pregunta {{ reflectionStep() + 1 }} de {{ reflectionQuestions.length }}</p>
+          <h2 class="reflection-title">{{ reflectionStepData().prompt }}</h2>
+          <div class="reflection-options">
+            @for (opt of reflectionStepData().options; track opt) {
+              <button class="reflection-opt" [class.selected]="reflectionAnswers()[reflectionStep()].selected.includes(opt)" (click)="reflectionSelect(reflectionStep(), opt)">
+                {{ opt }}
+              </button>
+            }
+          </div>
+          @if (reflectionShouldShowFollowup(reflectionStep())) {
+            <div class="reflection-followup">
+              <label>{{ reflectionStepData().followup }}</label>
+              <textarea [value]="reflectionAnswers()[reflectionStep()].note" (input)="reflectionNote(reflectionStep(), $any($event.target).value)" placeholder="Escribe aquí..."></textarea>
+            </div>
+          }
+          <p class="reflection-error" [class.show]="reflectionAnswers()[reflectionStep()].selected.length === 0 && reflectionTouched()">Selecciona al menos una opción para continuar.</p>
+          <div class="reflection-nav">
+            <button class="reflection-btn back" (click)="reflectionBack()" [disabled]="reflectionStep() === 0">Atrás</button>
+            <button class="reflection-btn next" (click)="reflectionNext()" [disabled]="reflectionAnswers()[reflectionStep()].selected.length === 0">
+              {{ reflectionStep() === reflectionQuestions.length - 1 ? 'Ver resumen' : 'Siguiente' }}
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="reflection-body">
+          <p class="reflection-eyebrow">Resumen de la reflexión</p>
+          <h2 class="reflection-title">Gracias por responder con sinceridad</h2>
+          <div class="reflection-summary">
+            @for (q of reflectionQuestions; track q.key; let i = $index) {
+              <div class="reflection-summary-item">
+                <p class="reflection-summary-q">{{ q.prompt }}</p>
+                <p class="reflection-summary-a">{{ reflectionAnswers()[i].selected.join(', ') }}</p>
+                @if (reflectionAnswers()[i].note) {
+                  <p class="reflection-summary-note">{{ reflectionAnswers()[i].note }}</p>
+                }
+              </div>
+            }
+          </div>
+          <button class="reflection-copy" id="copyReflectionBtn" (click)="copyReflection()">Copiar respuestas</button>
+        </div>
+      }
     </div>
   </div>
 }

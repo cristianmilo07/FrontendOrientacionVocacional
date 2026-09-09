@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
+import { SurveyService, SurveyResponse } from '../../services/survey.service';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,7 @@ import { ThemeService } from '../../services/theme.service';
 export class HomeComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   themeService = inject(ThemeService);
+  private surveyService = inject(SurveyService);
   showInstructions = signal(false);
   private countdown?: number;
 
@@ -71,9 +73,72 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   currentIndex = signal(0);
   answers = signal<(string | null)[]>(Array(48).fill(null));
+  submitted = signal(false);
+  submitting = signal(false);
+  submittedMessage = signal('');
+
+  responses = signal<SurveyResponse[]>([]);
+  responsesLoading = signal(false);
+  showResponses = signal(false);
+  selectedResponse = signal<SurveyResponse | null>(null);
+  deletingId = signal<string | null>(null);
+
+  reflectionQuestions = [
+    {
+      key: "sentimiento",
+      prompt: "¿Cómo te sentiste haciendo la prueba?",
+      options: ["Tranquilo/a", "Algo nervioso/a", "Aburrido/a", "Confundido/a", "Entretenido/a"],
+      multi: true,
+      followup: "¿Hubo alguna pregunta que te costó responder? Cuéntame cuál y por qué."
+    },
+    {
+      key: "duda",
+      prompt: "¿Hubo alguna pregunta en la que dudaste mucho entre dos opciones?",
+      options: ["Sí", "No"],
+      multi: false,
+      followupIf: ["Sí"],
+      followup: "¿Cuál y por qué te costó decidir?"
+    },
+    {
+      key: "representatividad",
+      prompt: "¿Sentiste que alguna pregunta no representaba bien lo que realmente piensas o te gusta?",
+      options: ["Sí", "No"],
+      multi: false,
+      followupIf: ["Sí"],
+      followup: "¿Cuál pregunta y qué le cambiarías?"
+    },
+    {
+      key: "honestidad",
+      prompt: "¿Respondiste pensando en lo que realmente te gusta, o en lo que crees que deberías responder?",
+      options: ["Lo que realmente me gusta", "Una mezcla de ambas", "Lo que creía que debía responder"],
+      multi: false,
+      followup: "¿Quieres agregar algo sobre esto?",
+      followupOptional: true
+    },
+    {
+      key: "familia",
+      prompt: "¿Alguna respuesta la diste pensando en lo que tu familia espera de ti, en vez de lo que tú sientes?",
+      options: ["Sí", "No", "A veces"],
+      multi: false,
+      followupIf: ["Sí", "A veces"],
+      followup: "¿En qué pregunta notaste eso?"
+    }
+  ];
+
+  reflectionStep = signal(0);
+  reflectionAnswers = signal<{ selected: string[]; note: string }[]>(
+    Array(5).fill(null).map(() => ({ selected: [], note: '' }))
+  );
+  reflectionSubmitted = signal(false);
+  showReflection = signal(false);
+  reflectionTouched = signal(false);
 
   get currentQuestion() {
     return this.questions[this.currentIndex()];
+  }
+
+  responseId(response: SurveyResponse) {
+    return response._id || response.id || '';
   }
 
   get progress() {
@@ -111,6 +176,179 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   get user() {
     return this.authService.user();
+  }
+
+  submitSurvey() {
+    const answers = this.answers()
+      .map((value, index) => ({
+        questionIndex: index,
+        question: this.questions[index],
+        value: value as string
+      }))
+      .filter((a) => a.value !== null);
+
+    if (answers.length === 0) {
+      this.submittedMessage.set('No hay respuestas para enviar');
+      return;
+    }
+
+    this.submitting.set(true);
+    this.submittedMessage.set('');
+    this.surveyService.submitResponse(answers).subscribe({
+      next: () => {
+        this.submitted.set(true);
+        this.submitting.set(false);
+        this.submittedMessage.set('Respuesta guardada correctamente');
+        this.showReflection.set(true);
+        this.reflectionStep.set(0);
+        this.reflectionAnswers.set(Array(5).fill(null).map(() => ({ selected: [], note: '' })));
+        this.reflectionSubmitted.set(false);
+      },
+      error: () => {
+        this.submitting.set(false);
+        this.submittedMessage.set('Error al guardar la respuesta');
+      }
+    });
+  }
+
+  reflectionSelect(stepIndex: number, option: string) {
+    const q = this.reflectionQuestions[stepIndex];
+    this.reflectionAnswers.update((current) => {
+      const next = [...current];
+      const ans = { ...next[stepIndex] };
+      if (q.multi) {
+        const idx = ans.selected.indexOf(option);
+        if (idx >= 0) ans.selected.splice(idx, 1);
+        else ans.selected.push(option);
+      } else {
+        ans.selected = ans.selected[0] === option ? [] : [option];
+      }
+      next[stepIndex] = ans;
+      return next;
+    });
+  }
+
+  reflectionNote(stepIndex: number, value: string) {
+    this.reflectionAnswers.update((current) => {
+      const next = [...current];
+      next[stepIndex] = { ...next[stepIndex], note: value };
+      return next;
+    });
+  }
+
+  reflectionNext() {
+    this.reflectionTouched.set(true);
+    const ans = this.reflectionAnswers()[this.reflectionStep()];
+    if (ans.selected.length === 0) return;
+    if (this.reflectionStep() < this.reflectionQuestions.length - 1) {
+      this.reflectionStep.update((i) => i + 1);
+      this.reflectionTouched.set(false);
+    } else {
+      this.reflectionSubmitted.set(true);
+    }
+  }
+
+  reflectionBack() {
+    if (this.reflectionStep() > 0) {
+      this.reflectionStep.update((i) => i - 1);
+    }
+  }
+
+  closeReflection() {
+    this.showReflection.set(false);
+  }
+
+  reflectionStepData() {
+    return this.reflectionQuestions[this.reflectionStep()];
+  }
+
+  reflectionShouldShowFollowup(stepIndex: number) {
+    const q = this.reflectionQuestions[stepIndex];
+    const ans = this.reflectionAnswers()[stepIndex];
+    if (!q.followup) return false;
+    if (q.followupOptional) return true;
+    if (!q.followupIf) return true;
+    const targets = Array.isArray(q.followupIf) ? q.followupIf : [q.followupIf];
+    return ans.selected.some((s) => targets.includes(s));
+  }
+
+  copyReflection() {
+    const text = this.reflectionQuestions.map((q, i) => {
+      const ans = this.reflectionAnswers()[i];
+      let line = `${q.prompt}\n${ans.selected.join(', ')}`;
+      if (ans.note) line += `\nNota: ${ans.note}`;
+      return line;
+    }).join('\n\n');
+
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyReflectionBtn');
+      if (btn) {
+        btn.textContent = 'Copiado';
+        setTimeout(() => { btn.textContent = 'Copiar respuestas'; }, 2000);
+      }
+    });
+  }
+
+  retakeSurvey() {
+    this.currentIndex.set(0);
+    this.answers.set(Array(48).fill(null));
+    this.submitted.set(false);
+    this.submittedMessage.set('');
+  }
+
+  loadResponses() {
+    this.responsesLoading.set(true);
+    this.showResponses.set(true);
+    this.selectedResponse.set(null);
+    this.surveyService.getAllResponses().subscribe({
+      next: (data) => {
+        this.responses.set(data.map(r => ({ ...r, _id: r._id ?? r.id })));
+        this.responsesLoading.set(false);
+      },
+      error: () => {
+        this.responsesLoading.set(false);
+      }
+    });
+  }
+
+  closeResponses() {
+    this.showResponses.set(false);
+    this.selectedResponse.set(null);
+  }
+
+  viewDetail(response: SurveyResponse) {
+    this.selectedResponse.set(null);
+    this.surveyService.getResponseById(this.responseId(response)).subscribe({
+      next: (fullResponse) => {
+        this.selectedResponse.set(fullResponse);
+      },
+      error: () => {
+        this.selectedResponse.set(null);
+      }
+    });
+  }
+
+  closeDetail() {
+    this.selectedResponse.set(null);
+  }
+
+  deleteResponse(id: string) {
+    if (!confirm('¿Eliminar esta respuesta?')) {
+      return;
+    }
+    this.deletingId.set(id);
+    this.surveyService.deleteResponse(id).subscribe({
+      next: () => {
+        this.responses.update((current) => current.filter((r) => r._id !== id));
+        if (this.selectedResponse()?._id === id) {
+          this.selectedResponse.set(null);
+        }
+        this.deletingId.set(null);
+      },
+      error: () => {
+        this.deletingId.set(null);
+      }
+    });
   }
 
   ngOnInit() {
