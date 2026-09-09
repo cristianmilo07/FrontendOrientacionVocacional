@@ -130,3 +130,20 @@
     </section>
   </main>
 </div>
+
+@if (showInstructions()) {
+  <div class="instruction-modal">
+    <div class="instruction-card">
+      <h2 class="instruction-title">Instrucciones</h2>
+      <p class="instruction-text">
+        Lee cada actividad y escribe:
+      </p>
+      <ul class="instruction-list">
+        <li><strong>2</strong> = Me gusta mucho</li>
+        <li><strong>1</strong> = Me gusta</li>
+        <li><strong>0</strong> = No me gusta</li>
+      </ul>
+      <button class="instruction-close" (click)="closeInstructions()">Entendido</button>
+    </div>
+  </div>
+}

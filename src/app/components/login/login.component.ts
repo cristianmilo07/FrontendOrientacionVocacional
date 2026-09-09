@@ -40,6 +40,7 @@ export class LoginComponent {
         next: (user) => {
           this.loading = false;
           if (user) {
+            sessionStorage.setItem('showInstructions', 'true');
             this.router.navigate(['/home']);
           } else {
             this.error = 'Usuario o contraseña incorrectos';
@@ -70,6 +71,7 @@ export class LoginComponent {
           this.loading = false;
           this.activeSession = null;
           if (user) {
+            sessionStorage.setItem('showInstructions', 'true');
             this.router.navigate(['/home']);
           } else {
             this.error = 'No se pudo iniciar sesión';
