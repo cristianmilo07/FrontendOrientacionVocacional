@@ -21,6 +21,14 @@
 
       <div class="hint">Usuario: <strong>admin</strong> / Contraseña: <strong>admin123</strong></div>
 
+      <div class="theme-toggle">
+        <span>Tema</span>
+        <div class="theme-options">
+          <button type="button" class="theme-option" [class.active]="theme === 'light'" (click)="setTheme('light')">Claro</button>
+          <button type="button" class="theme-option" [class.active]="theme === 'dark'" (click)="setTheme('dark')">Oscuro</button>
+        </div>
+      </div>
+
       <div class="error-msg" *ngIf="error">{{ error }}</div>
     </form>
   </div>

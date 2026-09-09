@@ -43,9 +43,7 @@
 
   <main class="content">
     <header class="topbar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Search" />
+      <div >
       </div>
       <div class="topbar-actions">
         <div class="notification-btn">
@@ -57,6 +55,10 @@
           <span class="user-menu-name">{{ user?.name }}</span>
           <span class="dropdown-arrow">▾</span>
         </div>
+        <button class="theme-toggle-btn" (click)="toggleTheme()" aria-label="Cambiar tema">
+          <span *ngIf="themeService.isDark()">☀️</span>
+          <span *ngIf="!themeService.isDark()">🌙</span>
+        </button>
       </div>
     </header>
 

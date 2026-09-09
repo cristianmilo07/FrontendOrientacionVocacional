@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-login',
@@ -16,12 +17,19 @@ export class LoginComponent {
   loading = false;
   error = '';
   activeSession: { username: string; name: string; lastLogin: string } | null = null;
+  theme: 'light' | 'dark' = 'dark';
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private themeService: ThemeService) {
     this.form = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]]
     });
+    this.theme = this.themeService.theme();
+  }
+
+  setTheme(theme: 'light' | 'dark') {
+    this.theme = theme;
+    this.themeService.setTheme(theme);
   }
 
   submit() {

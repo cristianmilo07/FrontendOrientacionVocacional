@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit, OnDestroy }
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-home',
@@ -13,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
+  themeService = inject(ThemeService);
   selectedOption = signal<string | null>(null);
   showInstructions = signal(false);
   private countdown?: number;
@@ -42,6 +44,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       clearTimeout(this.countdown);
     }
     this.showInstructions.set(false);
+  }
+
+  toggleTheme() {
+    this.themeService.toggle();
   }
 
   logout() {
