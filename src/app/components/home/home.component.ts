@@ -85,6 +85,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
   }
 
+  isAnswered() {
+    return this.answers()[this.currentIndex()] !== null;
+  }
+
   selectAnswer(value: string) {
     this.answers.update((current) => {
       const next = [...current];

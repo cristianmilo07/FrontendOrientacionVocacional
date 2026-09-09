@@ -93,7 +93,7 @@
 
             <div class="quiz-actions">
               <button class="btn-secondary" (click)="previous()" [disabled]="currentIndex() === 0">Anterior</button>
-              <button class="btn-primary" (click)="next()" [disabled]="currentIndex() === questions.length - 1">Siguiente Pregunta ></button>
+              <button class="btn-primary" (click)="next()" [disabled]="currentIndex() === questions.length - 1 || !isAnswered()">Siguiente Pregunta ></button>
             </div>
           </div>
         </div>
