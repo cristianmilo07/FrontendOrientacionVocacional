@@ -96,19 +96,15 @@
               <button class="btn-primary" (click)="next()" [disabled]="currentIndex() === questions.length - 1 || !isAnswered()">Siguiente Pregunta ></button>
             </div>
 
-            @if (currentIndex() === questions.length - 1 && isAnswered()) {
-              <button class="btn-submit" (click)="submitSurvey()" [disabled]="submitting()">
-                {{ submitting() ? 'Guardando...' : 'Enviar Respuestas' }}
-              </button>
-            }
+             @if (currentIndex() === questions.length - 1 && isAnswered()) {
+               <button class="btn-submit" (click)="submitSurvey()" [disabled]="submitting() || submitted()">
+                 {{ submitting() ? 'Guardando...' : 'Enviar Respuestas' }}
+               </button>
+             }
 
-            @if (submittedMessage()) {
-              <p class="form-message" [class.success]="submitted()" [class.error]="!submitted()">{{ submittedMessage() }}</p>
-            }
-
-            @if (submitted()) {
-              <button class="btn-secondary" (click)="retakeSurvey()">Volver a realizar encuesta</button>
-            }
+             @if (submittedMessage()) {
+               <p class="form-message" [class.success]="submitted()" [class.error]="!submitted()">{{ submittedMessage() }}</p>
+             }
           </div>
 
           <button class="btn-view-responses" (click)="loadResponses()">Ver respuestas guardadas</button>

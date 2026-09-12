@@ -266,11 +266,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
     const currentResponseId = this.lastSubmittedResponseId();
     if (!currentResponseId) {
-      this.submittedMessage.set('No se pudo guardar la reflexión: falta el identificador de la respuesta');
+      this.authService.logout();
       return;
     }
     if (!raw.length) {
-      this.submittedMessage.set('No se pudo guardar la reflexión: no hay respuestas');
+      this.authService.logout();
       return;
     }
     this.submitting.set(true);
@@ -280,10 +280,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.responses.update((current) => current.map((r) => r._id === currentResponseId ? { ...r, reflection: raw } : r));
         this.submittedMessage.set('Reflexión guardada correctamente');
         this.submitting.set(false);
+        this.authService.logout();
       },
       error: () => {
         this.submittedMessage.set('Error al guardar la reflexión');
         this.submitting.set(false);
+        this.authService.logout();
       }
     });
   }
@@ -328,6 +330,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   retakeSurvey() {
+    if (this.submitted()) return;
     this.currentIndex.set(0);
     this.answers.set(Array(48).fill(null));
     this.submitted.set(false);
@@ -417,6 +420,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    this.showResponses.set(false);
+    this.selectedResponse.set(null);
+    this.showReflection.set(false);
+    this.selectedReflection.set(null);
     this.authService.logout();
   }
 }
