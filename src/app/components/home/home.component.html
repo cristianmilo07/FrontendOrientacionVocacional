@@ -107,7 +107,9 @@
              }
           </div>
 
-          <button class="btn-view-responses" (click)="loadResponses()">Ver respuestas guardadas</button>
+           @if (user?.role === 'admin') {
+             <button class="btn-view-responses" (click)="loadResponses()">Ver respuestas guardadas</button>
+           }
         </div>
       </div>
     </section>
