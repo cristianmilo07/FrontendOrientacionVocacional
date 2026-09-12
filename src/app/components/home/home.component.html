@@ -140,6 +140,9 @@
               </div>
               <div class="response-actions">
                 <button class="btn-small" (click)="viewDetail(response)">Ver detalle</button>
+                @if (response.reflection?.length) {
+                  <button class="btn-small" (click)="viewReflectionDetail(response)">Ver reflexión</button>
+                }
                 <button class="btn-small danger" (click)="deleteResponse(responseId(response))" [disabled]="deletingId() === responseId(response)">
                   {{ deletingId() === responseId(response) ? 'Eliminando...' : 'Eliminar' }}
                 </button>
@@ -202,7 +205,7 @@
           <div class="reflection-nav">
             <button class="reflection-btn back" (click)="reflectionBack()" [disabled]="reflectionStep() === 0">Atrás</button>
             <button class="reflection-btn next" (click)="reflectionNext()" [disabled]="reflectionAnswers()[reflectionStep()].selected.length === 0">
-              {{ reflectionStep() === reflectionQuestions.length - 1 ? 'Ver resumen' : 'Siguiente' }}
+              {{ reflectionStep() === reflectionQuestions.length - 1 ? 'Cerrar' : 'Siguiente' }}
             </button>
           </div>
         </div>
@@ -221,9 +224,31 @@
               </div>
             }
           </div>
-          <button class="reflection-copy" id="copyReflectionBtn" (click)="copyReflection()">Copiar respuestas</button>
+          <button class="reflection-copy" id="copyReflectionBtn" (click)="closeReflection()">Cerrar</button>
         </div>
       }
+    </div>
+  </div>
+}
+
+@if (selectedReflection()) {
+  <div class="modal-overlay" (click)="closeReflectionDetail()">
+    <div class="modal-card large" (click="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Reflexión de {{ ($any(selectedReflection())?.response)?.username }}</h2>
+        <button class="modal-close" (click)="closeReflectionDetail()">✕</button>
+      </div>
+      <div class="reflection-detail-list">
+        @for (item of selectedReflection()?.reflection; track item.key) {
+          <div class="reflection-detail-item">
+            <p class="reflection-detail-q">{{ item.prompt }}</p>
+            <p class="reflection-detail-a">{{ item.selected.join(', ') }}</p>
+            @if (item.note) {
+              <p class="reflection-detail-note">{{ item.note }}</p>
+            }
+          </div>
+        }
+      </div>
     </div>
   </div>
 }

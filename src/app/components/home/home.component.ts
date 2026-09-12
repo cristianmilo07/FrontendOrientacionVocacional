@@ -132,6 +132,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   reflectionSubmitted = signal(false);
   showReflection = signal(false);
   reflectionTouched = signal(false);
+  lastSubmittedResponseId = signal<string | null>(null);
+  reflectionsSaved = signal(false);
+  selectedReflection = signal<{ response: SurveyResponse; reflection: SurveyResponse['reflection'] } | null>(null);
 
   get currentQuestion() {
     return this.questions[this.currentIndex()];
@@ -195,10 +198,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.submitting.set(true);
     this.submittedMessage.set('');
     this.surveyService.submitResponse(answers).subscribe({
-      next: () => {
+      next: (data: any) => {
         this.submitted.set(true);
         this.submitting.set(false);
         this.submittedMessage.set('Respuesta guardada correctamente');
+        this.lastSubmittedResponseId.set(data?.response?._id || null);
         this.showReflection.set(true);
         this.reflectionStep.set(0);
         this.reflectionAnswers.set(Array(5).fill(null).map(() => ({ selected: [], note: '' })));
@@ -256,6 +260,40 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   closeReflection() {
     this.showReflection.set(false);
+    const raw = this.reflectionQuestions.map((q, i) => {
+      const ans = this.reflectionAnswers()[i];
+      return { key: q.key, prompt: q.prompt, selected: [...ans.selected], note: ans.note };
+    });
+    const currentResponseId = this.lastSubmittedResponseId();
+    if (!currentResponseId) {
+      this.submittedMessage.set('No se pudo guardar la reflexión: falta el identificador de la respuesta');
+      return;
+    }
+    if (!raw.length) {
+      this.submittedMessage.set('No se pudo guardar la reflexión: no hay respuestas');
+      return;
+    }
+    this.submitting.set(true);
+    this.surveyService.saveReflection(currentResponseId, raw).subscribe({
+      next: () => {
+        this.reflectionsSaved.set(true);
+        this.responses.update((current) => current.map((r) => r._id === currentResponseId ? { ...r, reflection: raw } : r));
+        this.submittedMessage.set('Reflexión guardada correctamente');
+        this.submitting.set(false);
+      },
+      error: () => {
+        this.submittedMessage.set('Error al guardar la reflexión');
+        this.submitting.set(false);
+      }
+    });
+  }
+
+  viewReflectionDetail(response: SurveyResponse) {
+    this.selectedReflection.set({ response, reflection: response.reflection || [] });
+  }
+
+  closeReflectionDetail() {
+    this.selectedReflection.set(null);
   }
 
   reflectionStepData() {

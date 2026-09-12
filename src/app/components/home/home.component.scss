@@ -1093,3 +1093,37 @@
 .reflection-copy:hover {
   border-color: #2E6E5E;
 }
+
+.reflection-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reflection-detail-item {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.reflection-detail-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.reflection-detail-q {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+}
+
+.reflection-detail-a {
+  font-size: 15px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.reflection-detail-note {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
+}

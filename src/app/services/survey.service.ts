@@ -17,6 +17,7 @@ export interface SurveyResponse {
   answersCount: number;
   submittedAt: string;
   createdAt: string;
+  reflection?: { key: string; prompt: string; selected: string[]; note: string }[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -39,5 +40,9 @@ export class SurveyService {
 
   getResponseById(id: string) {
     return this.http.get<SurveyResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  saveReflection(id: string, reflection: SurveyResponse['reflection']) {
+    return this.http.patch(`${this.apiUrl}/${id}/reflection`, { reflection });
   }
 }
