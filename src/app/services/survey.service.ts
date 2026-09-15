@@ -22,8 +22,8 @@ export interface SurveyResponse {
 
 @Injectable({ providedIn: 'root' })
 export class SurveyService {
-  private apiUrl = 'http://localhost:3000/api/responses';
-
+  private apiUrl = 'https://backendorientacionvocacional.onrender.com/api/responses';
+  //private apiUrl = 'http://localhost:3000/api/responses';
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   submitResponse(answers: SurveyAnswer[]) {

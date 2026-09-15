@@ -12,7 +12,8 @@ export interface AuthUser {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = 'https://backendorientacionvocacional.onrender.com/api/auth';
+  //private apiUrl = 'http://localhost:3000/api/auth';
   user = signal<AuthUser | null>(null);
   token = signal<string | null>(null);
 
