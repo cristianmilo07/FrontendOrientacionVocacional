@@ -1,5 +1,6 @@
 import express from 'express';
 import { join } from 'node:path';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const browserDistFolder = join(import.meta.dirname, 'dist/pruebaEstudiantes/browser');
 
@@ -10,6 +11,14 @@ app.use(express.static(browserDistFolder, {
   index: false,
   redirect: false,
 }));
+
+app.use(
+  '/api',
+  createProxyMiddleware({
+    target: 'https://backendorientacionvocacional.onrender.com',
+    changeOrigin: true,
+  })
+);
 
 app.use((req, res) => {
   res.sendFile(join(browserDistFolder, 'index.html'));
