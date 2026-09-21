@@ -71,6 +71,27 @@ export class ManageStudentsComponent implements OnInit {
     this.message.set('');
   }
 
+  logoutUser(student: StudentUser) {
+    if (!confirm(`¿Cerrar la sesión de ${student.name}?`)) {
+      return;
+    }
+    this.savingId.set(student.id);
+    this.message.set('');
+    this.http.post(`/api/users/${student.id}/logout`, {}).subscribe({
+      next: (data: any) => {
+        this.success.set(true);
+        this.message.set(data?.message || 'Sesión cerrada correctamente');
+        this.savingId.set(null);
+        this.load();
+      },
+      error: () => {
+        this.success.set(false);
+        this.message.set('Error al cerrar la sesión');
+        this.savingId.set(null);
+      }
+    });
+  }
+
   cancelEdit() {
     this.editingId.set(null);
     this.editName.set('');

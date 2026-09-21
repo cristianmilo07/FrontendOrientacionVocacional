@@ -41,7 +41,10 @@
                   <p class="student-name">{{ student.name }}</p>
                   <p class="student-meta">@{{ student.username }}</p>
                 </div>
-                <button class="btn-small" (click)="startEdit(student)">Editar</button>
+                <div class="student-actions">
+                  <button class="btn-small danger" (click)="logoutUser(student)" [disabled]="savingId() === student.id">Cerrar sesión</button>
+                  <button class="btn-small" (click)="startEdit(student)">Editar</button>
+                </div>
               </div>
             }
           </div>
