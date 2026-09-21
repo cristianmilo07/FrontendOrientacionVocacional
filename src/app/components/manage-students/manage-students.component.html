@@ -1,0 +1,52 @@
+<div class="manage-page">
+  <div class="manage-card">
+    <div class="header">
+      <div>
+        <h1 class="title">Estudiantes</h1>
+        <p class="subtitle">Administrá nombres y contraseñas</p>
+      </div>
+      <button class="btn-secondary" (click)="goBack()">Volver</button>
+    </div>
+
+    @if (message()) {
+      <p class="form-message" [class.success]="success()" [class.error]="!success()">{{ message() }}</p>
+    }
+
+    @if (loading()) {
+      <p class="status">Cargando...</p>
+    } @else if (students().length === 0) {
+      <p class="empty-state">No hay estudiantes registrados</p>
+    } @else {
+      <div class="student-list">
+        @for (student of students(); track student.id) {
+          <div class="student-item">
+            @if (editingId() === student.id) {
+              <div class="student-form">
+                <label class="label">Nombre completo</label>
+                <input class="input" type="text" [value]="editName()" (input)="editName.set($any($event.target).value)" />
+
+                <label class="label">Nueva contraseña (dejar vacío para no cambiar)</label>
+                <input class="input" type="text" [value]="editPassword()" (input)="editPassword.set($any($event.target).value)" />
+
+                <div class="student-actions">
+                  <button class="btn-secondary" (click)="cancelEdit()">Cancelar</button>
+                  <button class="btn-primary" (click)="save(student)" [disabled]="savingId() === student.id">
+                    {{ savingId() === student.id ? 'Guardando...' : 'Guardar' }}
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="student-info">
+                <div>
+                  <p class="student-name">{{ student.name }}</p>
+                  <p class="student-meta">@{{ student.username }}</p>
+                </div>
+                <button class="btn-small" (click)="startEdit(student)">Editar</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
