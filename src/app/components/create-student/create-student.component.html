@@ -1,0 +1,25 @@
+<div class="create-student-page">
+  <div class="create-card">
+    <h1 class="title">Crear Estudiante</h1>
+    <p class="subtitle">Genera automáticamente el usuario y contraseña</p>
+
+    <div class="form">
+      <label class="label">Nombre</label>
+      <input class="input" type="text" [value]="firstName()" (input)="firstName.set($any($event.target).value)" placeholder="Ej: Antonia" />
+
+      <label class="label">Apellido</label>
+      <input class="input" type="text" [value]="lastName()" (input)="lastName.set($any($event.target).value)" placeholder="Ej: Palma" />
+
+      <div class="actions">
+        <button class="btn-secondary" (click)="goBack()">Volver</button>
+        <button class="btn-primary" (click)="submit()" [disabled]="loading()">
+          {{ loading() ? 'Guardando...' : 'Crear usuario' }}
+        </button>
+      </div>
+
+      @if (message()) {
+        <p class="form-message" [class.success]="success()" [class.error]="!success()">{{ message() }}</p>
+      }
+    </div>
+  </div>
+</div>
