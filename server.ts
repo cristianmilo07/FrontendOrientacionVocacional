@@ -11,7 +11,7 @@ app.use(express.static(browserDistFolder, {
   redirect: false,
 }));
 
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(join(browserDistFolder, 'index.html'));
 });
 
