@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-create-student',
@@ -14,7 +13,6 @@ import { HttpClient } from '@angular/common/http';
 })
 export class CreateStudentComponent implements OnInit {
   private authService = inject(AuthService);
-  private http = inject(HttpClient);
   private router = inject(Router);
 
   firstName = signal('');
@@ -46,7 +44,7 @@ export class CreateStudentComponent implements OnInit {
 
     this.loading.set(true);
     this.message.set('');
-    this.http.post('/api/users', { firstName: first, lastName: last, password: pwd || undefined }).subscribe({
+    this.authService.createUser(first, last, pwd || undefined).subscribe({
       next: (data: any) => {
         this.success.set(true);
         this.message.set(data?.message || 'Se ha creado correctamente');

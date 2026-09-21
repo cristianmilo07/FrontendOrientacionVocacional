@@ -10,10 +10,19 @@ export interface AuthUser {
   name: string;
 }
 
+export interface StudentUser {
+  id: string;
+  username: string;
+  name: string;
+  role: string;
+  isActive: boolean;
+  lastLogin: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = 'https://backendorientacionvocacional.onrender.com/api/auth';
-  //private apiUrl = 'http://localhost:3000/api/auth';
+  private apiBase = 'https://backendorientacionvocacional.onrender.com/api';
   user = signal<AuthUser | null>(null);
   token = signal<string | null>(null);
 
@@ -70,5 +79,29 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.router.navigate(['/login']);
+  }
+
+  createUser(firstName: string, lastName: string, password?: string) {
+    return this.http.post<{ message: string; user: any }>(`${this.apiBase}/users`, { firstName, lastName, password }).pipe(
+      catchError((err) => throwError(() => err))
+    );
+  }
+
+  getStudents() {
+    return this.http.get<StudentUser[]>(`${this.apiBase}/students`).pipe(
+      catchError((err) => throwError(() => err))
+    );
+  }
+
+  updateUser(id: string, name: string, password?: string) {
+    return this.http.patch<{ message: string; user: any }>(`${this.apiBase}/users/${id}`, { name, password }).pipe(
+      catchError((err) => throwError(() => err))
+    );
+  }
+
+  logoutUser(id: string) {
+    return this.http.post<{ message: string }>(`${this.apiBase}/users/${id}/logout`, {}).pipe(
+      catchError((err) => throwError(() => err))
+    );
   }
 }
