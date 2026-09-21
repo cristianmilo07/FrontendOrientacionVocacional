@@ -19,6 +19,7 @@ export class CreateStudentComponent implements OnInit {
 
   firstName = signal('');
   lastName = signal('');
+  password = signal('');
   message = signal('');
   loading = signal(false);
   success = signal(false);
@@ -36,6 +37,7 @@ export class CreateStudentComponent implements OnInit {
   submit() {
     const first = this.firstName().trim();
     const last = this.lastName().trim();
+    const pwd = this.password().trim();
     if (!first || !last) {
       this.message.set('Ingresa nombre y apellido');
       this.success.set(false);
@@ -44,17 +46,18 @@ export class CreateStudentComponent implements OnInit {
 
     this.loading.set(true);
     this.message.set('');
-    this.http.post('/api/users', { firstName: first, lastName: last }).subscribe({
+    this.http.post('/api/users', { firstName: first, lastName: last, password: pwd || undefined }).subscribe({
       next: (data: any) => {
         this.success.set(true);
         this.message.set(data?.message || 'Se ha creado correctamente');
         this.firstName.set('');
         this.lastName.set('');
+        this.password.set('');
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.success.set(false);
-        this.message.set('Error al crear el usuario');
+        this.message.set(err?.error?.message || 'Error al crear el usuario');
         this.loading.set(false);
       }
     });

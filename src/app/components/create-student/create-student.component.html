@@ -1,7 +1,7 @@
 <div class="create-student-page">
   <div class="create-card">
     <h1 class="title">Crear Estudiante</h1>
-    <p class="subtitle">Genera automáticamente el usuario y contraseña</p>
+    <p class="subtitle">Se generará el usuario automáticamente como nombre.apellido</p>
 
     <div class="form">
       <label class="label">Nombre</label>
@@ -9,6 +9,9 @@
 
       <label class="label">Apellido</label>
       <input class="input" type="text" [value]="lastName()" (input)="lastName.set($any($event.target).value)" placeholder="Ej: Palma" />
+
+      <label class="label">Contraseña</label>
+      <input class="input" type="text" [value]="password()" (input)="password.set($any($event.target).value)" placeholder="Dejar vacío para usar el usuario como contraseña" />
 
       <div class="actions">
         <button class="btn-secondary" (click)="goBack()">Volver</button>
