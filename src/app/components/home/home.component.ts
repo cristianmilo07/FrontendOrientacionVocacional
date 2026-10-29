@@ -4,6 +4,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { SurveyService, SurveyResponse } from '../../services/survey.service';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-home',
@@ -296,6 +298,71 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   closeReflectionDetail() {
     this.selectedReflection.set(null);
+  }
+
+  downloadResponsePDF(response: SurveyResponse) {
+    const answers = response.answers || [];
+    const doc = new jsPDF();
+    let y = 20;
+    
+    doc.setFontSize(16);
+    doc.text('Prueba de Orientación Vocacional', 105, y, { align: 'center' });
+    y += 10;
+    
+    doc.setFontSize(12);
+    doc.text(`Estudiante: ${response.username}`, 20, y);
+    y += 6;
+    doc.text(`Fecha: ${response.submittedAt ? new Date(response.submittedAt).toLocaleString() : ''}`, 20, y);
+    y += 6;
+    doc.text(`Total respuestas: ${answers.length}`, 20, y);
+    y += 12;
+    
+    doc.setFontSize(11);
+    answers.forEach((answer, idx) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      const valueText = answer.value === '2' ? 'Me gusta mucho' : answer.value === '1' ? 'Me gusta' : 'No me gusta';
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${idx + 1}. ${answer.question}`, 20, y, { maxWidth: 170 });
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Respuesta: ${valueText}`, 25, y);
+      y += 10;
+    });
+    
+    if (response.reflection && response.reflection.length > 0) {
+      if (y > 250) {
+        doc.addPage();
+        y = 20;
+      }
+      y += 5;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Reflexión del estudiante', 20, y);
+      y += 10;
+      doc.setFontSize(10);
+      response.reflection.forEach((ref) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.text(ref.prompt, 20, y, { maxWidth: 170 });
+        y += 6;
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Respuesta: ${ref.selected.join(', ')}`, 25, y, { maxWidth: 165 });
+        y += 6;
+        if (ref.note) {
+          doc.text(`Nota: ${ref.note}`, 25, y, { maxWidth: 165 });
+          y += 6;
+        }
+        y += 4;
+      });
+    }
+    
+    doc.save(`orientacion_vocacional_${response.username}_${Date.now()}.pdf`);
   }
 
   reflectionStepData() {

@@ -143,6 +143,7 @@
                 @if (response.reflection?.length) {
                   <button class="btn-small" (click)="viewReflectionDetail(response)">Ver reflexión</button>
                 }
+                <button class="btn-small" (click)="downloadResponsePDF(response)">Descargar PDF</button>
                 <button class="btn-small danger" (click)="deleteResponse(responseId(response))" [disabled]="deletingId() === responseId(response)">
                   {{ deletingId() === responseId(response) ? 'Eliminando...' : 'Eliminar' }}
                 </button>
@@ -161,6 +162,9 @@
       <div class="modal-header">
         <h2 class="modal-title">Detalle de respuesta - {{ selectedResponse()?.username }}</h2>
         <button class="modal-close" (click)="closeDetail()">✕</button>
+      </div>
+      <div style="display: flex; justify-content: flex-end; padding: 0 1rem 0.5rem 1rem;">
+        <button class="btn-small" (click)="downloadResponsePDF(selectedResponse()!)">Descargar PDF</button>
       </div>
       <div class="detail-list">
         @for (answer of selectedResponse()?.answers; track answer.questionIndex) {
